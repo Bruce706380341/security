@@ -47,10 +47,6 @@ import com.amazon.opendistroforelasticsearch.security.test.helper.rest.RestHelpe
 import com.amazon.opendistroforelasticsearch.security.test.helper.rest.RestHelper.HttpResponse;
 
 public class AggregationTests extends SingleClusterTest {
-    @Test
-    public void testDummyTestForReleaseDrfter() throws Exception{
-        return;
-    }
 
     @Test
     public void testBasicAggregations() throws Exception {
