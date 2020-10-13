@@ -2,15 +2,9 @@ name: Release-drafter
 
 on:
   push:
-<<<<<<< HEAD
-    branches: [ master, Create_release-drafter]
-  pull_request:
-    branches: [ master, Create_release-drafter]
-=======
     branches: [master]
   pull_request:
     branches: [master]
->>>>>>> master
 
 jobs:
   update_release_draft:
