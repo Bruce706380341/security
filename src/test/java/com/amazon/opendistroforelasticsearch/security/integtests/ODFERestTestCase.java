@@ -1,5 +1,9 @@
 package com.amazon.opendistroforelasticsearch.security.integtests;
 
+import com.amazon.opendistroforelasticsearch.security.OpenDistroSecurityPlugin;
+import com.amazon.opendistroforelasticsearch.security.support.ConfigConstants;
+import com.amazon.opendistroforelasticsearch.security.test.DynamicSecurityConfig;
+import com.amazon.opendistroforelasticsearch.security.test.helper.file.FileHelper;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -9,12 +13,18 @@ import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.util.EntityUtils;
+import org.elasticsearch.client.Request;
+import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.elasticsearch.test.rest.ESRestTestCase;
+//import org.json.JSONArray;
+//import org.json.JSONObject;
+import org.junit.After;
 
 import java.io.IOException;
 import java.util.Map;
@@ -37,6 +47,10 @@ public abstract class ODFERestTestCase extends ESRestTestCase {
         return isHttps;
 }
 
+    protected boolean securityEnabled(Settings settings) {
+        return !isDisabled(settings);
+    }
+
     protected String getProtocol() {
         return isHttps() ? "https" : "http";
     }
@@ -53,6 +67,20 @@ public abstract class ODFERestTestCase extends ESRestTestCase {
         return builder.build();
     }
 
+//    protected static void wipeAllODFEIndices() throws IOException {
+//        // include all the indices, included hidden indices.
+//        // https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-indices.html#cat-indices-api-query-params
+//        Response response = client().performRequest(new Request("GET", "/_cat/indices?format=json&expand_wildcards=all"));
+//        JSONArray jsonArray = new JSONArray(EntityUtils.toString(response.getEntity(), "UTF-8"));
+//        for (Object object : jsonArray) {
+//            JSONObject jsonObject = (JSONObject) object;
+//            String indexName = jsonObject.getString("index");
+//            //.opendistro_security isn't allowed to delete from cluster
+//            if (!".opendistro_security".equals(indexName)) {
+//                client().performRequest(new Request("DELETE", "/" + indexName));
+//            }
+//        }
+//    }
 
     protected static void configureHttpsClient(RestClientBuilder builder, Settings settings)
             throws IOException {
@@ -92,5 +120,9 @@ public abstract class ODFERestTestCase extends ESRestTestCase {
         if (settings.hasValue(CLIENT_PATH_PREFIX)) {
             builder.setPathPrefix(settings.get(CLIENT_PATH_PREFIX));
         }
+    }
+
+    private static boolean isDisabled(final Settings settings) {
+        return settings.getAsBoolean(ConfigConstants.OPENDISTRO_SECURITY_DISABLED, false);
     }
 }

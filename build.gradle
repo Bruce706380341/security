@@ -3,6 +3,9 @@ plugins {
    id "nebula.ospackage" version "5.3.0"
 }
 
+//apply plugin: 'elasticsearch.testclusters'
+//apply plugin: 'elasticsearch.rest-test'
+
 // To prevent conflicts with maven build under build/
 buildDir = 'gradle-build'
 
@@ -65,4 +68,36 @@ buildRpm {
 buildDeb {
     arch = 'amd64'
     archiveName "${packageName}-${version}.deb"
+}
+
+integTest {
+    systemProperty 'tests.security.manager', 'false'
+    systemProperty 'java.io.tmpdir', es_tmp_dir.absolutePath
+    systemProperty 'buildDir', buildDir.path
+    systemProperty "https", System.getProperty("https", securityEnabled.toString())
+    systemProperty "user", System.getProperty("user", "admin")
+    systemProperty "password", System.getProperty("password", "admin")
+    // Tell the test JVM if the cluster JVM is running under a debugger so that tests can use longer timeouts for
+    // requests. The 'doFirst' delays reading the debug setting on the cluster till execution time.
+    doFirst {
+        systemProperty 'cluster.debug', getDebug()
+        // Set number of nodes system property to be used in tests
+        systemProperty 'cluster.number_of_nodes', "${_numNodes}"
+        // There seems to be an issue when running multi node run or integ tasks with unicast_hosts
+        // not being written, the waitForAllConditions ensures it's written
+        getClusters().forEach { cluster ->
+            cluster.waitForAllConditions()
+        }
+    }
+
+    // The -Dcluster.debug option makes the cluster debuggable; this makes the tests debuggable
+    if (System.getProperty("test.debug") != null) {
+        jvmArgs '-agentlib:jdwp=transport=dt_socket,server=n,suspend=y,address=8000'
+    }
+}
+
+dependencies {
+    compileOnly "org.elasticsearch:elasticsearch:${es_version}"
+
+    testCompile "org.elasticsearch.test:framework:${es_version}"
 }
