@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'maven-publish'
+    id "com.gorylenko.gradle-git-properties" version "2.2.4"
 }
 
 repositories {
@@ -76,4 +77,13 @@ publishing {
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+}
+
+gitProperties {
+    gitPropertiesName = "git.properties"
+    gitPropertiesResourceDir = "$buildDir/classes"
+    keys = ['git.branch', 'git.build.time', 'git.build.version', 'git.closest.tag.commit.count', 'git.closest.tag.name',
+            'git.commit.id', 'git.commit.id.abbrev', 'git.commit.id.describe', 'git.commit.id.describe-short',
+            'git.commit.message.full', 'git.commit.message.short', 'git.commit.time', 'git.dirty',
+            'git.remote.origin.url', 'git.tags', 'git.total.commit.count', 'gitPropertiesResourceDir']
 }
