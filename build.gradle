@@ -1,15 +1,20 @@
 plugins {
     id 'java'
     id 'maven-publish'
+    id 'application'
     id "com.gorylenko.gradle-git-properties" version "2.2.4"
+
 }
 
 repositories {
     mavenLocal()
+    mavenCentral()
     maven {
         url = uri('https://repo.maven.apache.org/maven2/')
     }
 }
+
+//apply plugin: 'elasticsearch.esplugin'
 
 dependencies {
     implementation 'org.elasticsearch.plugin:transport-netty4-client:7.10.2'
@@ -55,6 +60,13 @@ dependencies {
 //    compileOnly 'org.apache.logging.log4j:log4j-core:2.11.1'
     compileOnly 'io.netty:netty-tcnative:2.0.25.Final'
 }
+
+//esplugin {
+//    name 'opendistro-security'
+//    description 'Amazon OpenDistro security plugin'
+//    classname 'com.amazon.opendistroforelasticsearch.security.OpenDistroSecurityPlugin'
+//    extendedPlugins = ['lang-painless']
+//}
 
 group = 'com.amazon.opendistroforelasticsearch'
 version = '1.13.1.0'
