@@ -1,7 +1,26 @@
+buildscript {
+    ext {
+        es_version = System.getProperty("es.version", "7.10.2")
+    }
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url = uri('https://repo.maven.apache.org/maven2/')
+        }
+    }
+
+    dependencies {
+        classpath "org.elasticsearch.gradle:build-tools:${es_version}"
+    }
+}
+
+
 plugins {
     id 'java'
     id 'maven-publish'
-    id 'application'
+//    id 'application'
     id "com.gorylenko.gradle-git-properties" version "2.2.4"
 
 }
@@ -14,7 +33,20 @@ repositories {
     }
 }
 
-//apply plugin: 'elasticsearch.esplugin'
+apply plugin: 'elasticsearch.esplugin'
+
+esplugin {
+    name 'opendistro-security'
+    description 'Amazon OpenDistro security plugin'
+    classname 'com.amazon.opendistroforelasticsearch.security.OpenDistroSecurityPlugin'
+}
+
+ext {
+        projectSubstitutions = [:]
+        licenseFile = rootProject.file('LICENSE.txt')
+        noticeFile = rootProject.file('NOTICE.txt')
+}
+
 
 dependencies {
     implementation 'org.elasticsearch.plugin:transport-netty4-client:7.10.2'
