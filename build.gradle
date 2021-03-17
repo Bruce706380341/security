@@ -160,3 +160,16 @@ gitProperties {
             'git.commit.message.full', 'git.commit.message.short', 'git.commit.time', 'git.dirty',
             'git.remote.origin.url', 'git.tags', 'git.total.commit.count', 'gitPropertiesResourceDir']
 }
+
+allprojects {
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs.remove("-Werror")
+            println("DEBUG" + options.compilerArgs)
+            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+            options.warnings(false)
+        }
+    }
+}
+
+checkstyleMain.enabled(false)
