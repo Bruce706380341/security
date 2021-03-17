@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.security.auditlog.sink;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.Random;
 
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;

@@ -177,12 +177,6 @@ public class WebhookSink extends AuditLogSink {
 	/**
 	 * Transforms an {@link AuditMessage} to Slack format.
 	 * The default implementation returns
-	 * <p><blockquote><pre>
-	 * {
-	 *   "text": "<AuditMessage#toText>"
-	 * }
-	 * </pre></blockquote>
-	 * <p>
 	 * Can be overridden by subclasses if a more specific format is needed.
 	 *
 	 * @param msg the AuditMessage to transform
