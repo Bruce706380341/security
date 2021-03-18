@@ -101,7 +101,6 @@ public class SystemIndicesTests extends SingleClusterTest {
     /**
      * Creates a set of test indices and indexes one document into each index.
      *
-     * @throws Exception
      */
     private void createTestIndicesAndDocs() {
         try (TransportClient tc = getInternalTransportClient()) {

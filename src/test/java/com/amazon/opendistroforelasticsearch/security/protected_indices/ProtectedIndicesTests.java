@@ -159,7 +159,6 @@ public class ProtectedIndicesTests extends SingleClusterTest {
     /**
      * Creates a set of test indices and indexes one document into each index.
      *
-     * @throws Exception
      */
     public void createTestIndicesAndDocs() {
         try (TransportClient tc = getInternalTransportClient()) {

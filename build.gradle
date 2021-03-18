@@ -50,13 +50,6 @@ ext {
 configurations.all {
     if (it.state != Configuration.State.UNRESOLVED) return
     resolutionStrategy {
-//        force "org.jetbrains.kotlin:kotlin-stdlib-common:${kotlin_version}"
-//        force "commons-logging:commons-logging:1.2" // resolve for awssdk:ses
-//        force "io.netty:netty-codec-http:4.1.46.Final" // resolve for awssdk:ses
-//        force "io.netty:netty-handler:4.1.46.Final" // resolve for awssdk:ses
-//        force "org.reactivestreams:reactive-streams:1.0.3" // resolve for awssdk:ses
-//        force "org.apache.httpcomponents:httpclient:4.5.10" // resolve for awssdk:ses
-//        force "org.apache.httpcomponents:httpcore:4.4.12" // resolve for awssdk:ses
         force 'commons-codec:commons-codec:1.12'
         force 'org.slf4j:slf4j-api:1.7.26'
         force 'joda-time:joda-time:2.10.4'
@@ -72,6 +65,14 @@ configurations.all {
         force 'org.apache.commons:commons-lang3:3.4'
         force 'org.apache.santuario:xmlsec:2.1.4'
         force 'com.fasterxml.woodstox:woodstox-core:6.2.1'
+        force 'io.netty:netty-buffer:4.1.49.Final'
+        force 'io.netty:netty-common:4.1.49.Final'
+        force 'io.netty:netty-handler:4.1.49.Final'
+        force 'io.netty:netty-transport:4.1.49.Final'
+        force 'com.fasterxml.jackson.core:jackson-annotations:2.11.2'
+        force 'net.sf.jopt-simple:jopt-simple:5.0.4'
+        force 'org.scala-lang:scala-library:2.12.10'
+        force 'org.scala-lang:scala-reflect:2.12.10'
     }
 }
 
@@ -112,7 +113,7 @@ dependencies {
     testImplementation 'org.elasticsearch.plugin:parent-join-client:7.10.2'
     testImplementation 'org.elasticsearch.plugin:aggs-matrix-stats-client:7.10.2'
     testImplementation 'org.mockito:mockito-core:2.23.0'
-    testImplementation 'org.springframework.kafka:spring-kafka-test:2.5.4.RELEASE'
+    testCompile 'org.springframework.kafka:spring-kafka-test:2.5.4.RELEASE'
 //    testImplementation 'org.apache.kafka:kafka-clients:2.0.1'
     testImplementation 'javax.servlet:servlet-api:2.5'
     testImplementation 'com.unboundid:unboundid-ldapsdk:4.0.9'
@@ -171,5 +172,3 @@ allprojects {
         }
     }
 }
-
-checkstyleMain.enabled(false)
