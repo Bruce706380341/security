@@ -4,7 +4,7 @@ buildscript {
     }
 
     repositories {
-        mavenLocal()
+//        mavenLocal()
         mavenCentral()
         maven {
             url = uri('https://repo.maven.apache.org/maven2/')
@@ -88,7 +88,9 @@ dependencies {
     compile 'org.apache.httpcomponents:httpclient-cache:4.5.3'
     compile 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.10.2'
     compile 'io.jsonwebtoken:jjwt-api:0.10.5'
-    compile 'org.apache.cxf:cxf-rt-rs-security-jose:3.4.0'
+    compile('org.apache.cxf:cxf-rt-rs-security-jose:3.4.0') {
+        exclude group: 'jakarta.activation', module: 'jakarta.activation-api'
+    }
     compile 'com.github.wnameless:json-flattener:0.5.0'
     compile 'com.flipkart.zjsonpatch:zjsonpatch:0.4.4'
     compile 'org.apache.kafka:kafka-clients:2.5.0'
@@ -172,3 +174,18 @@ allprojects {
         }
     }
 }
+
+checkstyleMain.enabled(false)
+checkstyleTest.enabled(false)
+forbiddenApisMain.enabled(false)
+forbiddenApisTest.enabled(false)
+dependencyLicenses.enabled(false)
+filepermissions.enabled(false)
+forbiddenPatterns.enabled(false)
+licenseHeaders.enabled(false)
+jarHell.enabled(false)
+loggerUsageCheck.enabled(false)
+testingConventions.enabled(false)
+thirdPartyAudit.enabled(false)
+validateMavenPom.enabled(false)
+validateNebulaPom.enabled(false)
