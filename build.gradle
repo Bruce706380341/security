@@ -21,6 +21,7 @@ plugins {
     id 'java'
     id 'maven-publish'
 //    id 'application'
+    id 'distribution'
     id "com.gorylenko.gradle-git-properties" version "2.2.4"
 
 }
@@ -45,6 +46,62 @@ ext {
         projectSubstitutions = [:]
         licenseFile = rootProject.file('LICENSE.txt')
         noticeFile = rootProject.file('NOTICE.txt')
+}
+
+//apply plugin: 'distribution'
+
+apply plugin: 'distribution'
+
+distributions {
+    main {
+        baseName = project.name
+        contents {
+            into('./') {  // Copy the following jars to the lib/ directory in the distribution archive
+                from jar
+                from configurations.runtimeClasspath
+                dirMode = 0755
+                fileMode = 0644
+            }
+            from('src/main/assemblies') {  // Contents of this directory are copied by default
+                dirMode = 0755
+                fileMode = 0644
+            }
+        }
+    }
+}
+
+task copyDocs(type: Copy) {
+    from 'src/main/doc'
+    into 'build/target/doc'
+}
+
+//for Ant filter
+import org.apache.tools.ant.filters.ReplaceTokens
+
+//for including in the copy task
+def dataContent = copySpec {
+    from 'src/data'
+    include '*.data'
+}
+
+task initConfig(type: Copy) {
+    from('src/main/config') {
+        include '**/*.properties'
+        include '**/*.xml'
+        filter(ReplaceTokens, tokens: [version: '2.3.1'])
+    }
+    from('src/main/config') {
+        exclude '**/*.properties', '**/*.xml'
+    }
+    from('src/main/languages') {
+        rename 'EN_US_(.*)', '$1'
+    }
+    into 'build/target/config'
+    exclude '**/*.bak'
+
+    includeEmptyDirs = false
+
+    with dataContent
 }
 
 configurations.all {
