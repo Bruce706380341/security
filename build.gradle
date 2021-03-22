@@ -52,6 +52,9 @@ ext {
 apply plugin: 'distribution'
 
 distributions {
+    ext {
+        version = '1.13.1.0'
+    }
     main {
         distributionBaseName = project.name
         contents {
@@ -71,12 +74,6 @@ distributions {
             from 'plugin-security.policy'
         }
     }
-}
-
-distributions {
-    ext {
-        version = '1.13.1.0'
-    }
     custom {
         distributionBaseName = "opendistro-security-${version}-securityadmin-standalone"
         contents {
@@ -94,9 +91,14 @@ distributions {
             }
         }
     }
+    customDistZip.setArchiveName("opendistro-security-${version}-securityadmin-standalone.zip")
+    customDistTar.setArchiveName("opendistro-security-${version}-securityadmin-standalone.tar.gz")
 }
 
-
+customDistTar{
+    compression = Compression.GZIP
+    archiveExtension = "tar.gz"
+}
 
 
 
