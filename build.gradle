@@ -4,7 +4,7 @@ buildscript {
     }
 
     repositories {
-//        mavenLocal()
+        mavenLocal()
         mavenCentral()
         maven {
             url = uri('https://repo.maven.apache.org/maven2/')
@@ -16,14 +16,10 @@ buildscript {
     }
 }
 
-
 plugins {
     id 'java'
     id 'maven-publish'
-//    id 'application'
-//    id 'distribution'
     id "com.gorylenko.gradle-git-properties" version "2.2.4"
-
 }
 
 repositories {
@@ -35,7 +31,6 @@ repositories {
 }
 
 apply plugin: 'elasticsearch.esplugin'
-//apply plugin: 'nebula.ospackage'
 esplugin {
     name 'opendistro-security'
     description 'Amazon OpenDistro security plugin'
@@ -43,7 +38,6 @@ esplugin {
 }
 
 bundlePlugin {
-//    dependsOn 'cloneGitRepo'
     from("securityconfig") {
         into "securityconfig"
     }
@@ -57,131 +51,6 @@ ext {
         licenseFile = rootProject.file('LICENSE.txt')
         noticeFile = rootProject.file('NOTICE.txt')
 }
-
-//afterEvaluate {
-//    org.gradle.api.tasks.bundling.Zip {
-//        def contentSpec = copySpec {
-//            from("./") {
-//                include "plugin-descriptor.properties"
-//            }
-//        }
-//
-//        task copy(type: Copy) {
-//            into "./"
-//            with contentSpec
-//        }
-//    }
-//
-//    ospackage {
-//        packageName = "${name}"
-////        release = isSnapshot ? "0.1" : '1'
-////        version = "${project.version}" - "-SNAPSHOT"
-//        version = '1.13.1.0'
-//
-//        into '/usr/share/elasticsearch/plugins'
-//        from(zipTree(bundlePlugin.archivePath)) {
-//            into esplugin.name
-//        }
-//
-//        user 'root'
-//        permissionGroup 'root'
-//        fileMode 0644
-//        dirMode 0755
-//
-//        requires('elasticsearch-oss', versions.elasticsearch, EQUAL)
-//        packager = 'Amazon'
-//        vendor = 'Amazon'
-//        os = 'LINUX'
-//        prefix '/usr'
-//
-//        license 'ASL-2.0'
-//        maintainer 'OpenDistro for Elasticsearch Team <opendistro@amazon.com>'
-//        url 'https://opendistro.github.io/for-elasticsearch/downloads.html'
-//        summary '''
-//         Security plugin for OpenDistro for Elasticsearch.
-//         Reference documentation can be found at https://opendistro.github.io/for-elasticsearch-docs/.
-//    '''.stripIndent().replace('\n', ' ').trim()
-//    }
-//
-//    task buildPackages(type: GradleBuild) {
-//        tasks = ['build']
-//    }
-//}
-
-
-//apply plugin: 'distribution'
-//
-//distributions {
-//    ext {
-//        version = '1.13.1.0'
-//    }
-//    main {
-//        distributionBaseName = project.name
-//        contents {
-//            into('./') {  // Copy the following jars to the lib/ directory in the distribution archive
-//                from jar
-//                from configurations.runtimeClasspath
-//                dirMode = 0755
-//                fileMode = 0644
-//            }
-//            into('tools') {
-//                from 'tools'
-//            }
-//            into('securityconfig') {
-//                from 'securityconfig'
-//            }
-////            from 'plugin-descriptor.properties'
-//            from 'plugin-security.policy'
-//        }
-//    }
-//    custom {
-//        distributionBaseName = "opendistro-security-${version}-securityadmin-standalone"
-//        contents {
-//            into('./deps/') {  // Copy the following jars to the lib/ directory in the distribution archive
-//                from jar
-//                from configurations.runtimeClasspath
-//                dirMode = 0755
-//                fileMode = 0644
-//            }
-//            into('./tools/') {
-//                from 'tools'
-//            }
-//            into('./deps/securityconfig') {
-//                from 'securityconfig'
-//            }
-//        }
-//    }
-//    customDistZip.setArchiveName("opendistro-security-${version}-securityadmin-standalone.zip")
-//    customDistTar.setArchiveName("opendistro-security-${version}-securityadmin-standalone.tar.gz")
-//    customDistTar.compression = Compression.GZIP
-//    customDistTar.archiveExtension = "tar.gz"
-//}
-
-//distTar {
-//    distributionBaseName = project.name
-//    contents = {
-//        into('./') {  // Copy the following jars to the lib/ directory in the distribution archive
-//            from jar
-//            from configurations.runtimeClasspath
-//            dirMode = 0755
-//            fileMode = 0644
-//        }
-//        into('tools') {
-//            from 'tools'
-//        }
-//        into('securityconfig') {
-//            from 'securityconfig'
-//        }
-//        from 'plugin-descriptor.properties'
-//        from 'plugin-security.policy'
-//    }
-//}
-
-
-//customDistTar{
-//    compression = Compression.GZIP
-//    archiveExtension = "tar.gz"
-//}
 
 configurations.all {
     if (it.state != Configuration.State.UNRESOLVED) return
@@ -320,3 +189,73 @@ testingConventions.enabled(false)
 thirdPartyAudit.enabled(false)
 validateMavenPom.enabled(false)
 validateNebulaPom.enabled(false)
+
+// Uses Gradle to build RPMs since that's what we use for the other plugins. When all you have is a hammer...
+plugins {
+     id "nebula.ospackage" version "5.3.0"
+}
+
+// To prevent conflicts with maven build under build/
+buildDir = 'gradle-build'
+
+ext {
+    opendistroVersion = '1.13.1'
+    isSnapshot = "true" == System.getProperty("build.snapshot", "true")
+}
+
+group = "com.amazon.opendistroforelasticsearch"
+// Increment the final digit when there's a new plugin versions for the same opendistro version
+// Reset the final digit to 0 when upgrading to a new opendistro version
+version = "${opendistroVersion}.0" + (isSnapshot ? "-SNAPSHOT" : "")
+
+
+if (!project.hasProperty("archivePath")) {
+    throw new GradleException("Missing -ParchivePath command line switch pointing to built plugin ZIP")
+}
+if (!project.file(archivePath).exists()) {
+    throw new GradleException("Missing plugin zip file: $archivePath")
+}
+
+ospackage {
+    packageName = "opendistro-security"
+    release = isSnapshot ? "0.1" : '1'
+    version = "${project.version}"
+
+    into '/usr/share/elasticsearch/plugins'
+    from(zipTree(project.file(archivePath).absolutePath)) {
+        into "opendistro_security"
+        permissionGroup 'elasticsearch'
+    }
+
+    user 'root'
+    permissionGroup 'root'
+
+    requires('elasticsearch-oss', "7.10.2", EQUAL)
+    packager = 'Amazon'
+    vendor = 'Amazon'
+    os = 'LINUX'
+    prefix '/usr'
+
+    license 'ASL-2.0'
+    maintainer 'OpenDistro for Elasticsearch Team <opendistro@amazon.com>'
+    url 'https://opendistro.github.io/for-elasticsearch/downloads.html'
+    summary '''
+     Security plugin for OpenDistro for Elasticsearch. 
+     Reference documentation can be found at https://opendistro.github.io/for-elasticsearch-docs/.
+     '''.stripIndent().replace('\n', ' ').trim()
+
+    //TODO: Would be better if the install_demo_configuration.sh script is marked executable in the upstream plugin instead of running bash manually here
+    postInstall "exec /bin/bash /usr/share/elasticsearch/plugins/opendistro_security/tools/install_demo_configuration.sh -y -i -s"
+}
+
+buildRpm {
+    arch = 'NOARCH'
+    addParentDirs = false
+    archiveName "${packageName}-${version}.rpm"
+}
+
+buildDeb {
+    arch = 'all'
+    archiveName "${packageName}-${version}.deb"
+}
+

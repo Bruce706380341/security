@@ -40,5 +40,3 @@ IML
 build/
 gradle-build/
 .gradle/
-.mvn/
-compareArtifacts.sh
