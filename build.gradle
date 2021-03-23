@@ -35,11 +35,12 @@ repositories {
 }
 
 apply plugin: 'elasticsearch.esplugin'
-
+apply plugin: 'nebula.ospackage'
 esplugin {
     name 'opendistro-security'
     description 'Amazon OpenDistro security plugin'
     classname 'com.amazon.opendistroforelasticsearch.security.OpenDistroSecurityPlugin'
+    extendedPlugins = ['lang-painless']
 }
 
 ext {
@@ -48,126 +49,129 @@ ext {
         noticeFile = rootProject.file('NOTICE.txt')
 }
 
+afterEvaluate {
+    org.gradle.api.tasks.bundling.Zip {
+        def contentSpec = copySpec {
+            from("./") {
+                include "plugin-descriptor.properties"
+            }
+        }
 
-apply plugin: 'distribution'
+        task copy(type: Copy) {
+            into "./"
+            with contentSpec
+        }
+    }
 
-distributions {
-    ext {
+    ospackage {
+        packageName = "${name}"
+//        release = isSnapshot ? "0.1" : '1'
+//        version = "${project.version}" - "-SNAPSHOT"
         version = '1.13.1.0'
-    }
-    main {
-        distributionBaseName = project.name
-        contents {
-            into('./') {  // Copy the following jars to the lib/ directory in the distribution archive
-                from jar
-                from configurations.runtimeClasspath
-                dirMode = 0755
-                fileMode = 0644
-            }
-            into('tools') {
-                from 'tools'
-            }
-            into('securityconfig') {
-                from 'securityconfig'
-            }
-            from 'plugin-descriptor.properties'
-            from 'plugin-security.policy'
-        }
-    }
-    custom {
-        distributionBaseName = "opendistro-security-${version}-securityadmin-standalone"
-        contents {
-            into('./deps/') {  // Copy the following jars to the lib/ directory in the distribution archive
-                from jar
-                from configurations.runtimeClasspath
-                dirMode = 0755
-                fileMode = 0644
-            }
-            into('./tools/') {
-                from 'tools'
-            }
-            into('./deps/securityconfig') {
-                from 'securityconfig'
-            }
-        }
-    }
-    customDistZip.setArchiveName("opendistro-security-${version}-securityadmin-standalone.zip")
-    customDistTar.setArchiveName("opendistro-security-${version}-securityadmin-standalone.tar.gz")
-}
 
-customDistTar{
-    compression = Compression.GZIP
-    archiveExtension = "tar.gz"
+        into '/usr/share/elasticsearch/plugins'
+        from(zipTree(bundlePlugin.archivePath)) {
+            into esplugin.name
+        }
+
+        user 'root'
+        permissionGroup 'root'
+        fileMode 0644
+        dirMode 0755
+
+        requires('elasticsearch-oss', versions.elasticsearch, EQUAL)
+        packager = 'Amazon'
+        vendor = 'Amazon'
+        os = 'LINUX'
+        prefix '/usr'
+
+        license 'ASL-2.0'
+        maintainer 'OpenDistro for Elasticsearch Team <opendistro@amazon.com>'
+        url 'https://opendistro.github.io/for-elasticsearch/downloads.html'
+        summary '''
+         Security plugin for OpenDistro for Elasticsearch. 
+         Reference documentation can be found at https://opendistro.github.io/for-elasticsearch-docs/.
+    '''.stripIndent().replace('\n', ' ').trim()
+    }
+
+    task buildPackages(type: GradleBuild) {
+        tasks = ['build']
+    }
 }
 
 
+//apply plugin: 'distribution'
 
-//task copyDocs(type: Copy) {
-//    from 'src/main/doc'
-//    into 'build/target/doc'
+//distributions {
+//    ext {
+//        version = '1.13.1.0'
+//    }
+//    main {
+//        distributionBaseName = project.name
+//        contents {
+//            into('./') {  // Copy the following jars to the lib/ directory in the distribution archive
+//                from jar
+//                from configurations.runtimeClasspath
+//                dirMode = 0755
+//                fileMode = 0644
+//            }
+//            into('tools') {
+//                from 'tools'
+//            }
+//            into('securityconfig') {
+//                from 'securityconfig'
+//            }
+//            from 'plugin-descriptor.properties'
+//            from 'plugin-security.policy'
+//        }
+//    }
+//    custom {
+//        distributionBaseName = "opendistro-security-${version}-securityadmin-standalone"
+//        contents {
+//            into('./deps/') {  // Copy the following jars to the lib/ directory in the distribution archive
+//                from jar
+//                from configurations.runtimeClasspath
+//                dirMode = 0755
+//                fileMode = 0644
+//            }
+//            into('./tools/') {
+//                from 'tools'
+//            }
+//            into('./deps/securityconfig') {
+//                from 'securityconfig'
+//            }
+//        }
+//    }
+//    customDistZip.setArchiveName("opendistro-security-${version}-securityadmin-standalone.zip")
+//    customDistTar.setArchiveName("opendistro-security-${version}-securityadmin-standalone.tar.gz")
+//    customDistTar.compression = Compression.GZIP
+//    customDistTar.archiveExtension = "tar.gz"
 //}
 
-//for Ant filter
-import org.apache.tools.ant.filters.ReplaceTokens
-
-//for including in the copy task
-//def dataContent = copySpec {
-//    from 'src/data'
-//    include '*.data'
-//}
-//
-//task initConfig(type: Copy) {
-//    from('src/main/config') {
-//        include '**/*.properties'
-//        include '**/*.xml'
-//        filter(ReplaceTokens, tokens: [version: '2.3.1'])
+//distTar {
+//    distributionBaseName = project.name
+//    contents = {
+//        into('./') {  // Copy the following jars to the lib/ directory in the distribution archive
+//            from jar
+//            from configurations.runtimeClasspath
+//            dirMode = 0755
+//            fileMode = 0644
+//        }
+//        into('tools') {
+//            from 'tools'
+//        }
+//        into('securityconfig') {
+//            from 'securityconfig'
+//        }
+//        from 'plugin-descriptor.properties'
+//        from 'plugin-security.policy'
 //    }
-//    from('src/main/config') {
-//        exclude '**/*.properties', '**/*.xml'
-//    }
-//    from('src/main/languages') {
-//        rename 'EN_US_(.*)', '$1'
-//    }
-//    into 'build/target/config'
-//    exclude '**/*.bak'
-//
-//    includeEmptyDirs = false
-//
-//    with dataContent
 //}
 
-//task copyDocs(type: Copy) {
-//    from 'src/main/doc'
-//    into 'build/target/doc'
-//}
-//
-////for Ant filter
-//import org.apache.tools.ant.filters.ReplaceTokens
-//
-////for including in the copy task
-//def dataContent = copySpec {
-//    from 'src/data'
-//    include '*.data'
-//}
-//
-//task initConfig(type: Copy) {
-//    from('src/main/config') {
-//        include '**/*.properties'
-//        include '**/*.xml'
-//        filter(ReplaceTokens, tokens: [version: '2.3.1'])
-//    }
-//    from('src/main/config') {
-//        exclude '**/*.properties', '**/*.xml'
-//    }
-//    from('src/main/languages') {
-//        rename 'EN_US_(.*)', '$1'
-//    }
-//    into 'build/target/config'
-//    exclude '**/*.bak'
-//
-//    includeEmptyDirs = false
-//
-//    with dataContent
+
+//customDistTar{
+//    compression = Compression.GZIP
+//    archiveExtension = "tar.gz"
 //}
 
 configurations.all {
