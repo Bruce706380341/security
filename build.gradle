@@ -35,12 +35,21 @@ repositories {
 }
 
 apply plugin: 'elasticsearch.esplugin'
-apply plugin: 'nebula.ospackage'
+//apply plugin: 'nebula.ospackage'
 esplugin {
     name 'opendistro-security'
     description 'Amazon OpenDistro security plugin'
     classname 'com.amazon.opendistroforelasticsearch.security.OpenDistroSecurityPlugin'
-    extendedPlugins = ['lang-painless']
+}
+
+bundlePlugin {
+//    dependsOn 'cloneGitRepo'
+    from("securityconfig") {
+        into "securityconfig"
+    }
+    from("tools") {
+        into "tools"
+    }
 }
 
 ext {
@@ -49,59 +58,59 @@ ext {
         noticeFile = rootProject.file('NOTICE.txt')
 }
 
-afterEvaluate {
-    org.gradle.api.tasks.bundling.Zip {
-        def contentSpec = copySpec {
-            from("./") {
-                include "plugin-descriptor.properties"
-            }
-        }
-
-        task copy(type: Copy) {
-            into "./"
-            with contentSpec
-        }
-    }
-
-    ospackage {
-        packageName = "${name}"
-//        release = isSnapshot ? "0.1" : '1'
-//        version = "${project.version}" - "-SNAPSHOT"
-        version = '1.13.1.0'
-
-        into '/usr/share/elasticsearch/plugins'
-        from(zipTree(bundlePlugin.archivePath)) {
-            into esplugin.name
-        }
-
-        user 'root'
-        permissionGroup 'root'
-        fileMode 0644
-        dirMode 0755
-
-        requires('elasticsearch-oss', versions.elasticsearch, EQUAL)
-        packager = 'Amazon'
-        vendor = 'Amazon'
-        os = 'LINUX'
-        prefix '/usr'
-
-        license 'ASL-2.0'
-        maintainer 'OpenDistro for Elasticsearch Team <opendistro@amazon.com>'
-        url 'https://opendistro.github.io/for-elasticsearch/downloads.html'
-        summary '''
-         Security plugin for OpenDistro for Elasticsearch. 
-         Reference documentation can be found at https://opendistro.github.io/for-elasticsearch-docs/.
-    '''.stripIndent().replace('\n', ' ').trim()
-    }
-
-    task buildPackages(type: GradleBuild) {
-        tasks = ['build']
-    }
-}
+//afterEvaluate {
+//    org.gradle.api.tasks.bundling.Zip {
+//        def contentSpec = copySpec {
+//            from("./") {
+//                include "plugin-descriptor.properties"
+//            }
+//        }
+//
+//        task copy(type: Copy) {
+//            into "./"
+//            with contentSpec
+//        }
+//    }
+//
+//    ospackage {
+//        packageName = "${name}"
+////        release = isSnapshot ? "0.1" : '1'
+////        version = "${project.version}" - "-SNAPSHOT"
+//        version = '1.13.1.0'
+//
+//        into '/usr/share/elasticsearch/plugins'
+//        from(zipTree(bundlePlugin.archivePath)) {
+//            into esplugin.name
+//        }
+//
+//        user 'root'
+//        permissionGroup 'root'
+//        fileMode 0644
+//        dirMode 0755
+//
+//        requires('elasticsearch-oss', versions.elasticsearch, EQUAL)
+//        packager = 'Amazon'
+//        vendor = 'Amazon'
+//        os = 'LINUX'
+//        prefix '/usr'
+//
+//        license 'ASL-2.0'
+//        maintainer 'OpenDistro for Elasticsearch Team <opendistro@amazon.com>'
+//        url 'https://opendistro.github.io/for-elasticsearch/downloads.html'
+//        summary '''
+//         Security plugin for OpenDistro for Elasticsearch.
+//         Reference documentation can be found at https://opendistro.github.io/for-elasticsearch-docs/.
+//    '''.stripIndent().replace('\n', ' ').trim()
+//    }
+//
+//    task buildPackages(type: GradleBuild) {
+//        tasks = ['build']
+//    }
+//}
 
 
 //apply plugin: 'distribution'
-
+//
 //distributions {
 //    ext {
 //        version = '1.13.1.0'
@@ -121,7 +130,7 @@ afterEvaluate {
 //            into('securityconfig') {
 //                from 'securityconfig'
 //            }
-//            from 'plugin-descriptor.properties'
+////            from 'plugin-descriptor.properties'
 //            from 'plugin-security.policy'
 //        }
 //    }
@@ -252,12 +261,7 @@ dependencies {
     compileOnly 'io.netty:netty-tcnative:2.0.25.Final'
 }
 
-esplugin {
-    name 'opendistro-security'
-    description 'Amazon OpenDistro security plugin'
-    classname 'com.amazon.opendistroforelasticsearch.security.OpenDistroSecurityPlugin'
-    extendedPlugins = ['lang-painless']
-}
+
 
 group = 'com.amazon.opendistroforelasticsearch'
 version = '1.13.1.0'
