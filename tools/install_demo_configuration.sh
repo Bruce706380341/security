@@ -165,7 +165,7 @@ fi
 ES_CONF_DIR=$(dirname "${ES_CONF_FILE}")
 ES_CONF_DIR=`cd "$ES_CONF_DIR" ; pwd`
 
-if [ ! -d "$ES_PLUGINS_DIR/opendistro-security" ]; then
+if [ ! -d "$ES_PLUGINS_DIR/opendistro_security" ]; then
   echo "Open Distro Security plugin not installed. Quit."
   exit -1
 fi
