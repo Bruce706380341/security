@@ -33,7 +33,7 @@ repositories {
 
 apply plugin: 'elasticsearch.esplugin'
 esplugin {
-    name 'opendistro_security'
+    name 'opendistro-security'
     description 'Amazon OpenDistro security plugin'
     classname 'com.amazon.opendistroforelasticsearch.security.OpenDistroSecurityPlugin'
 }
