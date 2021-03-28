@@ -117,6 +117,10 @@ configurations.all {
     }
 }
 
+configurations.testCompile{
+    'org.apache.kafka:kafka-clients:2.0.1'
+}
+
 dependencies {
     compile 'org.elasticsearch.plugin:transport-netty4-client:7.10.2'
     compile 'com.google.guava:guava:25.1-jre'
@@ -207,7 +211,7 @@ dependencyLicenses.enabled(false)
 filepermissions.enabled(false)
 forbiddenPatterns.enabled(false)
 licenseHeaders.enabled(false)
-jarHell.enabled(false)
+//jarHell.enabled(false)
 loggerUsageCheck.enabled(false)
 testingConventions.enabled(false)
 thirdPartyAudit.enabled(false)
