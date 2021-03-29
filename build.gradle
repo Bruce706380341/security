@@ -117,8 +117,11 @@ configurations.all {
     }
 }
 
-configurations.testCompile{
-    'org.apache.kafka:kafka-clients:2.0.1'
+configurations.testCompile {
+    if (it.state != Configuration.State.UNRESOLVED) return
+    resolutionStrategy {
+        force 'org.apache.kafka:kafka-clients:2.0.1:test'
+    }
 }
 
 dependencies {
@@ -159,6 +162,9 @@ dependencies {
     testImplementation 'org.elasticsearch.plugin:aggs-matrix-stats-client:7.10.2'
     testImplementation 'org.mockito:mockito-core:2.23.0'
     testCompile 'org.springframework.kafka:spring-kafka-test:2.5.4.RELEASE'
+//    testCompile('org.springframework.kafka:spring-kafka-test:2.5.4.RELEASE') {
+//        exclude group: 'kafka', module: 'spring-kafka-test'
+//    }
     testImplementation 'javax.servlet:servlet-api:2.5'
     testImplementation 'com.unboundid:unboundid-ldapsdk:4.0.9'
     testImplementation 'com.github.stephenc.jcip:jcip-annotations:1.0-1'
