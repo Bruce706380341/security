@@ -4,7 +4,7 @@ buildscript {
     }
 
     repositories {
-        mavenLocal()
+//        mavenLocal()
         mavenCentral()
         maven {
             url = uri('https://repo.maven.apache.org/maven2/')
@@ -18,18 +18,18 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'maven-publish'
+//    id 'maven-publish'
     id 'nebula.ospackage' version '8.5.6'
     id "com.gorylenko.gradle-git-properties" version "2.2.4"
 }
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-    maven {
-        url = uri('https://repo.maven.apache.org/maven2/')
-    }
-}
+//repositories {
+//    mavenLocal()
+//    mavenCentral()
+//    maven {
+//        url = uri('https://repo.maven.apache.org/maven2/')
+//    }
+//}
 
 apply plugin: 'elasticsearch.esplugin'
 esplugin {
@@ -114,6 +114,7 @@ configurations.all {
         force 'net.sf.jopt-simple:jopt-simple:5.0.4'
         force 'org.scala-lang:scala-library:2.12.10'
         force 'org.scala-lang:scala-reflect:2.12.10'
+//        force 'org.hamcrest:hamcrest-all:1.3'
     }
 }
 
@@ -141,7 +142,9 @@ dependencies {
     }
     compile 'com.github.wnameless:json-flattener:0.5.0'
     compile 'com.flipkart.zjsonpatch:zjsonpatch:0.4.4'
-    compile 'org.apache.kafka:kafka-clients:2.5.0'
+    compileOnly('org.apache.kafka:kafka-clients:2.5.0') {
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+    }
     compile 'com.onelogin:java-saml:2.5.0'
     compile 'org.opensaml:opensaml-saml-impl:3.4.5'
     compile 'commons-collections:commons-collections:3.2.2'
@@ -151,7 +154,7 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.10.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.10.5'
     testImplementation 'commons-io:commons-io:2.6'
-    testImplementation 'org.hamcrest:hamcrest-all:1.3'
+    testCompileOnly 'org.hamcrest:hamcrest-all:1.3'
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.apache.httpcomponents:fluent-hc:4.5.3'
     testImplementation 'org.elasticsearch.plugin:reindex-client:7.10.2'
@@ -161,10 +164,12 @@ dependencies {
     testImplementation 'org.elasticsearch.plugin:parent-join-client:7.10.2'
     testImplementation 'org.elasticsearch.plugin:aggs-matrix-stats-client:7.10.2'
     testImplementation 'org.mockito:mockito-core:2.23.0'
-    testCompile 'org.springframework.kafka:spring-kafka-test:2.5.4.RELEASE'
-//    testCompile('org.springframework.kafka:spring-kafka-test:2.5.4.RELEASE') {
-//        exclude group: 'kafka', module: 'spring-kafka-test'
+    testCompileOnly 'org.springframework.kafka:spring-kafka-test:2.5.4.RELEASE'
+//    testImplementation 'org.elasticsearch.test:framework:7.10.2'
+//    testImplementation('org.elasticsearch.test:framework:7.10.2') {
+//        exclude group: 'org.hamcrest', module: 'hamcrest'
 //    }
+//    testImplementation 'org.apache.kafka:kafka-clients:2.0.1:test'
     testImplementation 'javax.servlet:servlet-api:2.5'
     testImplementation 'com.unboundid:unboundid-ldapsdk:4.0.9'
     testImplementation 'com.github.stephenc.jcip:jcip-annotations:1.0-1'
@@ -221,7 +226,7 @@ licenseHeaders.enabled(false)
 loggerUsageCheck.enabled(false)
 testingConventions.enabled(false)
 thirdPartyAudit.enabled(false)
-validateMavenPom.enabled(false)
+//validateMavenPom.enabled(false)
 validateNebulaPom.enabled(false)
 
 // To prevent conflicts with maven build under build/
