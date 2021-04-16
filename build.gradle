@@ -15,6 +15,7 @@ buildscript {
 
     dependencies {
         classpath "org.elasticsearch.gradle:build-tools:${es_version}"
+        classpath "org.jacoco:org.jacoco.agent:0.8.5"
     }
 }
 
@@ -23,8 +24,17 @@ plugins {
     id 'nebula.ospackage' version '8.5.6'
     id "com.gorylenko.gradle-git-properties" version "2.2.4"
 }
-
+apply plugin: 'jacoco'
 apply plugin: 'elasticsearch.esplugin'
+
+def usingRemoteCluster = System.properties.containsKey('tests.rest.cluster') || System.properties.containsKey('tests.cluster')
+def usingMultiNode = project.properties.containsKey('numNodes')
+// Only apply jacoco test coverage if we are running a local single node cluster
+if (!usingRemoteCluster && !usingMultiNode) {
+    apply from: 'build-tools/esplugin-coverage.gradle'
+}
+check.dependsOn jacocoTestReport
+
 esplugin {
     name 'opendistro_security'
     description 'Open Distro Security for Elasticsearch'
